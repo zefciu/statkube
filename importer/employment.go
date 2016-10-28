@@ -1,13 +1,11 @@
-package main
+package importer
 
 import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"os"
 	"time"
 
-	"github.com/Mirantis/statkube/db"
 	"github.com/Mirantis/statkube/models"
 	"github.com/jinzhu/gorm"
 )
@@ -160,17 +158,4 @@ func loadAll(db *gorm.DB, employment io.Reader) {
 	// skip ']', '"companies", '['
 	skipToken(decoder, 3)
 	loadCompanies(decoder, db)
-}
-
-func main() {
-	db := db.GetDB()
-	filename, exists := os.LookupEnv("EMPLOYMENT_FILE")
-	if !exists {
-		filename = "default_data.json"
-	}
-	f, err := os.Open(filename)
-	if err != nil {
-		panic(fmt.Sprintln("Error opening file %s: %v ", filename, err.Error()))
-	}
-	loadAll(db, f)
 }
