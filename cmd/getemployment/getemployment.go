@@ -152,6 +152,16 @@ func loadEmployment(decoder *json.Decoder, db *gorm.DB) {
 	}
 }
 
+// loadAll performs the actual data loading
+
+func loadAll(db *gorm.DB, employment io.Reader) {
+	decoder := initReader(employment)
+	loadEmployment(decoder, db)
+	// skip ']', '"companies", '['
+	skipToken(decoder, 3)
+	loadCompanies(decoder, db)
+}
+
 func main() {
 	db := db.GetDB()
 	filename, exists := os.LookupEnv("EMPLOYMENT_FILE")
@@ -162,9 +172,5 @@ func main() {
 	if err != nil {
 		panic(fmt.Sprintln("Error opening file %s: %v ", filename, err.Error()))
 	}
-	decoder := initReader(f)
-	loadEmployment(decoder, db)
-	// skip ']', '"companies", '['
-	skipToken(decoder, 3)
-	loadCompanies(decoder, db)
+	loadAll(db, f)
 }
